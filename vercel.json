@@ -1,10 +1,6 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "angular.json", "use": "@vercel/static-build" }
-  ],
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "outputDirectory": "dist/demo1/browser"
+  ]
 }
