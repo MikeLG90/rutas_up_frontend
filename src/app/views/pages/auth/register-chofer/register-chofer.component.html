@@ -1,0 +1,67 @@
+<div class="container py-5">
+  <div class="row w-100 mx-0 auth-page">
+    <div class="col-md-8 col-xl-6 mx-auto">
+      <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <div class="row g-0">
+          <div class="col-md-4 pe-md-0">
+            <div class="auth-side-wrapper position-relative h-100">
+              <!-- Circular logo overlay on the background image -->
+              <div class="position-absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2;">
+                <div class="bg-white shadow-lg" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 3px solid white;">
+                  <img src="images/assets/combi.png" alt="Logo" class="w-100 h-100 object-fit-cover">
+                </div>
+              </div>
+              <!-- Background image with overlay -->
+              <div class="h-100 w-100 position-relative">
+                <div class="position-absolute bg-primary opacity-25 w-100 h-100"></div>
+                <div class="h-100 w-100" style="background-image: url('assets/images/combi.png'); background-size: cover; background-position: center;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8 ps-md-0">
+            <div class="auth-form-wrapper px-4 py-5">
+              <a routerLink="." class="text-decoration-none d-block mb-3">
+                <h2 class="fw-bold text-primary mb-0">Rutas<span class="text-success">UP</span></h2>
+              </a>
+              <h5 class="text-secondary fw-normal mb-4">Crea una cuenta de chofer.</h5>
+              <form class="forms-sample" (ngSubmit)="onRegister($event)">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="nombre" class="form-label small text-muted">Nombre</label>
+                    <input type="text" class="form-control form-control-lg rounded-3 border-light-subtle" id="nombre" [(ngModel)]="user.nombre" name="nombre" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="ap_paterno" class="form-label small text-muted">Apellido Paterno</label>
+                    <input type="text" class="form-control form-control-lg rounded-3 border-light-subtle" id="ap_paterno" [(ngModel)]="user.ap_paterno" name="ap_paterno" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="ap_materno" class="form-label small text-muted">Apellido Materno</label>
+                    <input type="text" class="form-control form-control-lg rounded-3 border-light-subtle" id="ap_materno" [(ngModel)]="user.ap_materno" name="ap_materno">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label small text-muted">Correo electrónico</label>
+                    <input type="email" class="form-control form-control-lg rounded-3 border-light-subtle" id="email" [(ngModel)]="user.email" name="email" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="contrasena" class="form-label small text-muted">Contraseña</label>
+                    <input type="password" class="form-control form-control-lg rounded-3 border-light-subtle" id="contrasena" [(ngModel)]="user.contrasena" name="contrasena" required>
+                  </div>
+                </div>
+                <div class="form-check mb-4">
+                  <input type="checkbox" class="form-check-input" id="authCheck">
+                  <label class="form-check-label text-muted" for="authCheck">
+                    Recuérdame
+                  </label>
+                </div>
+                <div>
+                  <button type="submit" class="btn btn-primary btn-lg fw-medium px-4 py-2 rounded-3 me-2 mb-2 mb-md-0">Registrarse</button>
+                </div>
+                <a routerLink="/auth/login" class="d-block mt-4 text-primary text-decoration-none">¿Ya tienes cuenta? <span class="fw-medium">Inicia sesión</span></a>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

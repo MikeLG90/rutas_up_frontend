@@ -1,0 +1,196 @@
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Sección principal con tabla de datos -->
+            <main>
+                <div class="card border-0 rounded-3 overflow-hidden">
+                    <!-- Encabezado de la tarjeta -->
+                    <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Listado de Rutas</h5>
+                        <!-- Contador de registros -->
+                        <span class="badge bg-light text-primary">{{ rows?.length || 0 }} registros</span>
+                    </div>
+
+                    <!-- Barra de herramientas -->
+                    <div class="card-body border-bottom py-3">
+                        <div class="row g-3 align-items-center">
+                            <!-- Buscador -->
+                            <div class="col-12 col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0">
+                                        <i class="feather icon-search"></i>
+                                    </span>
+                                    <input
+                                        type="text"
+                                        class="form-control border-start-0"
+                                        placeholder="Buscar por nombre.."
+                                        (keyup)="updateFilter($event)"
+                                        aria-label="Buscar Ruta"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6 d-flex justify-content-md-end">
+                                <a type="button" class="btn btn-primary" href="/apps/route-planner">
+                                    <i class="feather icon-plus"></i>
+                                    Nueva Ruta
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de datos -->
+                    <div class="w-100 overflow-auto">
+                        <ngx-datatable
+                            class="bootstrap w-100"
+                            [rowHeight]="'auto'"
+                            [headerHeight]="50"
+                            [footerHeight]="50"
+                            [limit]="pageSize"
+                            [rows]="rows"
+                            [loadingIndicator]="loadingIndicator"
+                            [columnMode]="'force'"
+                            [reorderable]="true"
+                            [scrollbarH]="true"
+                            [scrollbarV]="false"
+                            [sorts]="[{prop: 'ruta_id', dir: 'desc'}]">
+                            
+                            <!-- Columnas de la tabla -->
+                            <ngx-datatable-column prop="ruta_id" name="ID" [width]="80" [resizeable]="false" [sortable]="true"></ngx-datatable-column>
+                            <ngx-datatable-column prop="nombre_ruta" name="Nombre de Ruta" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                            <ngx-datatable-column prop="distancia" name="Distancia" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                            <ngx-datatable-column name="Creado En" [width]="150" [resizeable]="true" [sortable]="true">
+                                <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.created_at | date:'dd/MM/yyyy HH:mm:ss' }}
+                                </ng-template>
+                              </ngx-datatable-column>
+                              
+                            <!-- Columna de acciones -->
+                            <ngx-datatable-column name="Acciones" [width]="150" [resizeable]="false" [sortable]="false" [draggable]="false" [canAutoResize]="false">
+                                <ng-template let-row="row" ngx-datatable-cell-template>
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <button class="btn btn-info btn-sm rounded-pill me-2" title="Ver Detalles" (click)="abrirModalVer(row)">
+                                            <i class="feather icon-eye me-1"></i>
+                                        </button>
+                                        <button class="btn btn-warning btn-sm rounded-pill me-2" title="Editar" (click)="abrirModalEditar(row)">
+                                            <i class="feather icon-edit me-1"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm rounded-pill" title="Eliminar" (click)="eliminarRuta(row.ruta_id)">
+                                            <i class="feather icon-trash me-1"></i>
+                                        </button>
+                                    </div>
+                                </ng-template>
+                            </ngx-datatable-column>
+                        </ngx-datatable>
+
+                        <!-- Componente de paginación -->
+                        <pagination-controls (pageChange)="onPageChange($event)" [maxSize]="5" [responsive]="true" [directionLinks]="true" [autoHide]="true"></pagination-controls>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<section class="modals">
+    <!-- Modal para editar -->
+    <div class="modal fade" id="modalEditarRuta" tabindex="-1" aria-labelledby="modalRutaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <!-- Encabezado del modal -->
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title" id="modalRutaLabel">
+                        <i class="bi bi-file-earmark-plus me-2"></i>
+                        {{ editando ? 'Editar' : 'Nueva' }} Ruta
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+    
+                <!-- Cuerpo del modal -->
+                <div class="modal-body p-4">
+                    <form #rutaForm="ngForm" (ngSubmit)="actualizarRuta()">
+                        <div class="row g-3">
+                            <!-- Campo: Nombre de Ruta -->
+                            <div class="col-12">
+                                <label for="nombre_ruta" class="form-label fw-medium">Nombre de Ruta</label>
+                                <input type="text" class="form-control" id="nombre_ruta" [(ngModel)]="ruta.nombre_ruta" 
+                                       name="nombre_ruta" required placeholder="Ingrese el nombre de la ruta" />
+                            </div>
+    
+                            <!-- Campo: Puntos Geográficos -->
+                                <input type="hidden" class="form-control" id="puntos_geograficos" [(ngModel)]="ruta.puntos_geograficos" 
+                                       name="puntos_geograficos" required placeholder="Ingrese los puntos geográficos" />
+    
+                            <!-- Campo: Distancia -->
+                                <input type="hidden" class="form-control" id="distancia" [(ngModel)]="ruta.distancia" 
+                                       name="distancia" required placeholder="Ingrese la distancia" />
+                        </div>
+    
+                        <!-- Botones de acción -->
+                        <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                                <i class="feather icon-slash"></i>Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-warning px-4">
+                                <i class="feather icon-save"></i>{{ editando ? 'Actualizar' : 'Guardar' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalVerRuta" tabindex="-1" aria-labelledby="modalRutaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <!-- Encabezado del modal -->
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="modalRutaLabel">
+                        <i class="bi bi-file-earmark-plus me-2"></i>
+                        {{ editando ? 'Editar' : 'Nueva' }} Ruta
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+    
+                <!-- Cuerpo del modal -->
+                <div class="modal-body p-4">
+                    <form #rutaForm="ngForm" (ngSubmit)="actualizarRuta()">
+                        <div class="row g-3">
+                            <!-- Campo: Nombre de Ruta -->
+                            <div class="col-12">
+                                <label for="nombre_ruta" class="form-label fw-medium">Nombre de Ruta</label>
+                                <input type="text" class="form-control" id="nombre_ruta" [(ngModel)]="ruta.nombre_ruta" 
+                                       name="nombre_ruta" required placeholder="Ingrese el nombre de la ruta" />
+                            </div>
+    
+                            <!-- Campo: Puntos Geográficos -->
+                            <div class="col-12">
+                                <label for="puntos_geograficos" class="form-label fw-medium">Puntos Geográficos</label>
+                                <input type="text" class="form-control" id="puntos_geograficos" [(ngModel)]="ruta.puntos_geograficos" 
+                                       name="puntos_geograficos" required placeholder="Ingrese los puntos geográficos" />
+                            </div>
+    
+                            <!-- Campo: Distancia -->
+                            <div class="col-12">
+                                <label for="distancia" class="form-label fw-medium">Distancia (km)</label>
+                                <input type="text" class="form-control" id="distancia" [(ngModel)]="ruta.distancia" 
+                                       name="distancia" required placeholder="Ingrese la distancia" />
+                            </div>
+    
+                        </div>
+    
+                        <!-- Botones de acción -->
+                        <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                                <i class="feather icon-slash"></i>Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+</section>

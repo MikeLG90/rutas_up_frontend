@@ -1,0 +1,171 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap grid-margin">
+  <div>
+    <h4 class="mb-3 mb-md-0">Sistema de Gestión de Transporte Urbano</h4>
+  </div>
+  <div class="d-flex align-items-center flex-wrap text-nowrap">
+    <div class="input-group w-200px me-2 mb-2 mb-md-0">
+      <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="d.toggle()">
+        <i data-feather="calendar" appFeatherIcon></i>
+      </button>
+      <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
+          name="dp" [(ngModel)]="currentDate" ngbDatepicker #d="ngbDatepicker">
+    </div>
+    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0">
+      <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+      Imprimir
+    </button>
+    <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0">
+      <i class="btn-icon-prepend" data-feather="download-cloud" appFeatherIcon></i>
+      Descargar Reporte
+    </button>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12 col-xl-12 stretch-card">
+    <div class="row flex-grow-1">
+      <div class="col-md-4 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Vehículos Activos</h6>
+              <div ngbDropdown class="mb-2">
+                <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton">
+                  <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
+                </a>
+                <div ngbDropdownMenu aria-labelledby="dropdownMenuButton">
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">Ver</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Editar</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Imprimir</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Descargar</span></a>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 col-md-12 col-xl-5">
+                <h3 class="mb-2">187</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-success">
+                    <span>+5.3%</span>
+                    <i data-feather="arrow-up" appFeatherIcon class="icon-sm mb-1"></i>
+                  </p>
+                </div>
+              </div>
+              <div class="col-6 col-md-12 col-xl-7">
+                <div class="mt-md-3 mt-xl-0">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Pasajeros Diarios</h6>
+              <div ngbDropdown class="mb-2">
+                <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton1">
+                  <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
+                </a>
+                <div ngbDropdownMenu aria-labelledby="dropdownMenuButton1">
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">Ver</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Editar</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Imprimir</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Descargar</span></a>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 col-md-12 col-xl-5">
+                <h3 class="mb-2">45,284</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-danger">
+                    <span>-2.8%</span>
+                    <i data-feather="arrow-down" appFeatherIcon class="icon-sm mb-1"></i>
+                  </p>
+                </div>
+              </div>
+              <div class="col-6 col-md-12 col-xl-7">
+                <div class="mt-md-3 mt-xl-0">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Eficiencia de Combustible</h6>
+              <div ngbDropdown class="mb-2">
+                <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton2">
+                  <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
+                </a>
+                <div ngbDropdownMenu aria-labelledby="dropdownMenuButton2">
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">Ver</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Editar</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Imprimir</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Descargar</span></a>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 col-md-12 col-xl-5">
+                <h3 class="mb-2">92.7%</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-success">
+                    <span>+3.8%</span>
+                    <i data-feather="arrow-up" appFeatherIcon class="icon-sm mb-1"></i>
+                  </p>
+                </div>
+              </div>
+              <div class="col-6 col-md-12 col-xl-7">
+                <div class="mt-md-3 mt-xl-0">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> <!-- row -->
+
+<div class="row">
+  <div class="col-12 col-xl-12 grid-margin stretch-card">
+    <div class="card overflow-hidden">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-baseline mb-4 mb-md-3">
+          <h6 class="card-title mb-0">Mapa de Rutas en Tiempo Real</h6>
+          <div ngbDropdown>
+            <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton3">
+              <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
+            </a>
+            <div ngbDropdownMenu aria-labelledby="dropdownMenuButton3">
+              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">Ver</span></a>
+              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Editar</span></a>
+              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Imprimir</span></a>
+              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Descargar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="row align-items-start">
+          <div class="col-md-7">
+            <p class="text-secondary fs-13px mb-3 mb-md-0">Visualización en tiempo real de la ubicación de todos los vehículos de la flota. Haga clic en un vehículo para ver detalles adicionales.</p>
+          </div>
+        </div>
+        <div class="map-container" style="height: 400px; background-color: #f5f5f5; border-radius: 4px; position: relative;">
+      
+          <!-- Mapa en iframe -->
+          <iframe src="https://rutas-up-backend.onrender.com/map" width="100%" height="100%" style="border: none; border-radius: 4px;"></iframe>
+      </div>
+      
+      </div>
+    </div>
+  </div>
+</div> <!-- row -->

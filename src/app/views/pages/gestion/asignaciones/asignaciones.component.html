@@ -1,0 +1,217 @@
+<!-- Contenedor principal con diseño responsive -->
+<style>
+    .btn {
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .btn:hover {
+        opacity: 0.8; /* Efecto de hover para hacer que el botón se vea más suave */
+    }
+</style>
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Sección principal con tabla de datos -->
+            <main>
+                <div class="card border-0 rounded-3 overflow-hidden">
+                    <!-- Encabezado de la tarjeta -->
+                    <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Listado de Asignaciones</h5>
+                        <!-- Contador de registros -->
+                        <span class="badge bg-light text-primary">{{ rows?.length || 0 }} registros</span>
+                    </div>
+
+                    <!-- Barra de herramientas -->
+                    <div class="card-body border-bottom py-3">
+                        <div class="row g-3 align-items-center">
+                            <!-- Buscador -->
+                            <div class="col-12 col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0">
+                                        <i class="feather icon-search"></i>
+                                    </span>
+                                    <input
+                                        type="text"
+                                        class="form-control border-start-0"
+                                        placeholder="Buscar por chofer..."
+                                        (keyup)="updateFilter($event)"
+                                        aria-label="Buscar Asignación"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-md-6 d-flex justify-content-md-end">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaAsignacion">
+                                    <i class="feather icon-plus"></i>
+                                    Nueva Asignación
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabla de datos con ngx-datatable -->
+                    <div class="w-100 overflow-auto">
+                        <ngx-datatable
+                        class="bootstrap w-100"
+                        [rowHeight]="'auto'"
+                        [headerHeight]="50"
+                        [footerHeight]="50"
+                        [limit]="pageSize"
+                        [rows]="rows"
+                        [loadingIndicator]="loadingIndicator"
+                        [columnMode]="'force'"
+                        [reorderable]="true"
+                        [scrollbarH]="true"
+                        [scrollbarV]="false"
+                        [sorts]="[{prop: 'asignacion_id', dir: 'desc'}]">
+                    
+                        <!-- Columnas de la tabla -->
+                        <ngx-datatable-column prop="asignacion_id" name="ID" [width]="80" [resizeable]="false" [sortable]="true"></ngx-datatable-column>
+                        <ngx-datatable-column prop="nombre_completo" name="Chofer" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                        <ngx-datatable-column prop="vehiculo_detalles" name="Vehículo" [width]="200" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                        <ngx-datatable-column prop="ruta_id" name="Ruta" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                        <ngx-datatable-column name="Fecha de Creación" [width]="180" [resizeable]="true" [sortable]="true">
+                            <ng-template let-row="row" ngx-datatable-cell-template>
+                              {{ row.created_at | date:'dd/MM/yyyy HH:mm:ss' }}
+                            </ng-template>
+                          </ngx-datatable-column>
+                        
+                        <!-- Columna de acciones -->
+                        <ngx-datatable-column name="Acciones" [width]="150" [resizeable]="false" [sortable]="false" [draggable]="false" [canAutoResize]="false">
+                            <ng-template let-row="row" ngx-datatable-cell-template>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <button class="btn btn-info btn-sm rounded-pill me-2" title="Ver Detalles">
+                                        <i class="feather icon-eye me-1"></i>
+                                    </button>
+                                    <button class="btn btn-warning btn-sm rounded-pill me-2" title="Editar" (click)="abrirModalEditar(row)">
+                                        <i class="feather icon-edit me-1"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm rounded-pill" title="Eliminar" (click)="eliminarAsignacion(row.asignacion_id)">
+                                        <i class="feather icon-trash me-1"></i>
+                                    </button>
+                                </div>
+                            </ng-template>
+                        </ngx-datatable-column>
+                    </ngx-datatable>
+                    
+                        
+                        <!-- Componente de paginación -->
+                        <pagination-controls (pageChange)="onPageChange($event)" [maxSize]="5" [responsive]="true" [directionLinks]="true" [autoHide]="true"></pagination-controls>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- Modales -->
+<section class="modals">
+<!-- Modal para crear -->
+<div class="modal fade" id="modalNuevaAsignacion" tabindex="-1" aria-labelledby="modalNuevaAsignacionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalNuevaAsignacionLabel">
+                    <i class="bi bi-file-earmark-plus me-2"></i>
+                    Nueva Asignación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4">
+                <form #asignacionForm="ngForm" (ngSubmit)="crearAsignacion()">
+                    <div class="row g-3">
+                        <!-- Campo: Chofer ID -->
+                        <div class="col-12">
+                            <label for="chofer_id" class="form-label fw-medium">Chofer</label>
+                            <select class="form-select" id="chofer_id" [(ngModel)]="nuevaAsignacion.chofer_id" name="chofer_id" required>
+                                <option *ngFor="let chofer of choferes" [value]="chofer.id">{{ chofer.nombre_completo }}</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Campo: Vehículo ID -->
+                        <div class="col-12">
+                            <label for="vehiculo_id" class="form-label fw-medium">Vehículo</label>
+                            <select class="form-select" id="vehiculo_id" [(ngModel)]="nuevaAsignacion.vehiculo_id" name="vehiculo_id" required>
+                                <option *ngFor="let vehiculo of vehiculos" [value]="vehiculo.vehiculo_id">{{ vehiculo.vehiculo_detalles }}</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Campo: Ruta ID -->
+                        <div class="col-12">
+                            <label for="ruta_id" class="form-label fw-medium">Ruta</label>
+                            <select class="form-select" id="ruta_id" [(ngModel)]="nuevaAsignacion.ruta_id" name="ruta_id" required>
+                                <option *ngFor="let ruta of rutas" [value]="ruta.ruta_id">{{ ruta.nombre_ruta }}</option>
+                            </select>                            
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                            <i class="feather icon-slash"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="feather icon-save"></i>Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditarAsignacion" tabindex="-1" aria-labelledby="modalEditarAsignacionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title" id="modalEditarAsignacionLabel">
+                    <i class="bi bi-file-earmark-plus me-2"></i>
+                    Editar Asignación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4">
+                <form #asignacionForm="ngForm" (ngSubmit)="actualizarAsignacion()">
+                    <div class="row g-3">
+                        <!-- Campo: Chofer ID -->
+                        <div class="col-12">
+                            <label for="chofer_id" class="form-label fw-medium">Chofer</label>
+                            <select class="form-select" id="chofer_id" [(ngModel)]="asignacionSeleccionada.chofer_id" name="chofer_id" required>
+                                <option *ngFor="let chofer of choferes" [value]="chofer.id">{{ chofer.nombre_completo }}</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Campo: Vehículo ID -->
+                        <div class="col-12">
+                            <label for="vehiculo_id" class="form-label fw-medium">Vehículo</label>
+                            <select class="form-select" id="vehiculo_id" [(ngModel)]="asignacionSeleccionada.vehiculo_id" name="vehiculo_id" required>
+                                <option *ngFor="let vehiculo of vehiculos" [value]="vehiculo.vehiculo_id">{{ vehiculo.vehiculo_detalles }}</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Campo: Ruta ID -->
+                        <div class="col-12">
+                            <label for="ruta_id" class="form-label fw-medium">Ruta</label>
+                            <select class="form-select" id="ruta_id" [(ngModel)]="asignacionSeleccionada.ruta_id" name="ruta_id" required>
+                                <option *ngFor="let ruta of rutas" [value]="ruta.ruta_id">{{ ruta.nombre_ruta }}</option>
+                            </select>                            
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                            <i class="feather icon-slash"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-warning px-4">
+                            <i class="feather icon-save"></i>Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</section>

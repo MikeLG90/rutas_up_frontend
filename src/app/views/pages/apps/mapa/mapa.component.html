@@ -1,0 +1,21 @@
+<div class="container mt-4">
+    <h2>Mapa de Rutas</h2>
+  
+    <!-- Card para el mapa -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Ruta en Mapa</h5>
+      </div>
+      <div class="card-body">
+        <div id="mapa"></div> <!-- Se quitó el estilo inline para manejarlo con CSS -->
+      </div>
+    </div>
+  
+    <!-- Botones debajo del mapa -->
+    <div class="mt-3">
+      <button class="btn btn-primary" (click)="drawRoute()">Dibujar Ruta</button>
+      <button class="btn btn-success" (click)="saveRoute()">Guardar Ruta</button>
+      <button class="btn btn-secondary" routerLink="/rutas">Volver</button>
+    </div>
+  </div>
+  

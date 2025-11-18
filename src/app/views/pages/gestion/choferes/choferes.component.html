@@ -1,0 +1,464 @@
+<!-- Contenedor principal con diseño responsive -->
+<style>
+    .btn {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn:hover {
+  opacity: 0.8; /* Efecto de hover para hacer que el botón se vea más suave */
+}
+
+ </style>
+<div class="container py-4">
+    <div class="row">
+      <div class="col-12">
+
+        <!-- Sección principal con tabla de datos -->
+        <main>
+          <div class="card border-0 rounded-3 overflow-hidden">
+            <!-- Encabezado de la tarjeta -->
+            <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Listado de Choferes</h5>
+              <!-- Contador de registros -->
+              <span class="badge bg-light text-primary">{{ rows?.length || 0 }} registros</span>
+            </div>
+            
+            <!-- Barra de herramientas -->
+            <div class="card-body border-bottom py-3">
+              <div class="row g-3 align-items-center">
+                <!-- Buscador -->
+                <div class="col-12 col-md-6">
+                  <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                      <i class="feather icon-search"></i>
+                    </span>
+                    <input
+                      type="text"
+                      class="form-control border-start-0"
+                      placeholder="Buscar por nombre.."
+                      (keyup)="updateFilter($event)"
+                      aria-label="Buscar Chofer"
+                    />
+                  </div>
+                </div>
+                
+                <div class="col-12 col-md-6 d-flex justify-content-md-end">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoChofer">
+                    <i class="feather icon-plus"></i>
+                    Nuevo Chofer
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Tabla de datos con ngx-datatable -->
+            <div class="w-100 overflow-auto">
+                <ngx-datatable
+                class="bootstrap w-100"
+                [rowHeight]="'auto'"
+                [headerHeight]="50"
+                [footerHeight]="50"
+                [limit]="pageSize"
+                [rows]="rows"
+                [loadingIndicator]="loadingIndicator"
+                [columnMode]="'force'"
+                [reorderable]="true"
+                [scrollbarH]="true"
+                [scrollbarV]="false"
+                [sorts]="[{prop: 'id', dir: 'desc'}]">
+              
+                <!-- Columnas de la tabla -->
+                <ngx-datatable-column prop="id" name="ID" [width]="80" [resizeable]="false" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="nombre_completo" name="Chofer" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="licencia_conducir" name="Licencia" [width]="100" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="fecha_expiracion_licencia" name="Fecha de expiración" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="estado" name="Estado" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="fecha_ingreso" name="Fecha de ingreso" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="observaciones" name="Observaciones" [width]="200" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+              
+                <!-- Columna de acciones -->
+                <ngx-datatable-column name="Acciones" [width]="150" [resizeable]="false" [sortable]="false" [draggable]="false" [canAutoResize]="false">
+                  <ng-template let-row="row" ngx-datatable-cell-template>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button class="btn btn-info btn-sm rounded-pill me-2"title="Ver Detalles" (click)="abrirModalVer(row)">
+                          <i class="feather icon-eye me-1"></i>
+                        </button>
+                        <button class="btn btn-warning btn-sm rounded-pill me-2" title="Editar" (click)="abrirModalEditar(row)">
+                          <i class="feather icon-edit me-1"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm rounded-pill" title="Eliminar" (click)="eliminarChofer(row.id)">
+                          <i class="feather icon-trash me-1"></i>
+                        </button>
+                      </div>
+                      
+                      
+                  </ng-template>
+                </ngx-datatable-column>
+              </ngx-datatable>
+              
+              <!-- Componente de paginación -->
+              <pagination-controls (pageChange)="onPageChange($event)" [maxSize]="5" [responsive]="true" [directionLinks]="true" [autoHide]="true"></pagination-controls>
+              
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+<!-- Modales -->
+<section class="modals">
+  <!-- Modal Nuevo Chofer -->
+<div class="modal fade" id="modalNuevoChofer" tabindex="-1" aria-labelledby="modalNuevoChoferLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <!-- Encabezado -->
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalNuevoChoferLabel">
+          <i class="bi bi-file-earmark-plus me-2"></i>
+          Nuevo Chofer
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="modal-body p-4">
+        <form #choferForm="ngForm" (ngSubmit)="crearChofer()" novalidate>
+          <div class="row g-3">
+
+            <!-- Usuario -->
+            <div class="col-12">
+              <label for="usuario_id" class="form-label fw-medium">Usuario</label>
+              <select
+                class="form-select"
+                id="usuario_id"
+                [(ngModel)]="nuevaChofer.usuario_id"
+                name="usuario_id"
+                required
+                #usuarioId="ngModel"
+                [ngClass]="{ 'is-invalid': usuarioId.invalid && usuarioId.touched }">
+                <option value="">Seleccione un usuario</option>
+                <option *ngFor="let user of users" [value]="user.usuario_id">{{ user.nombre_completo }}</option>
+              </select>
+              <div class="invalid-feedback">
+                Selecciona un usuario.
+              </div>
+            </div>
+
+            <!-- Licencia de Conducir -->
+            <div class="col-12">
+              <label for="licencia_conducir" class="form-label fw-medium">Licencia de Conducir</label>
+              <input
+                type="text"
+                class="form-control"
+                id="licencia_conducir"
+                [(ngModel)]="nuevaChofer.licencia_conducir"
+                name="licencia_conducir"
+                required
+                pattern="^[A-Z0-9-]{7,15}$"
+                placeholder="Ej: ABC-123456"
+                #licenciaConducir="ngModel"
+                [ngClass]="{ 'is-invalid': licenciaConducir.invalid && licenciaConducir.touched }">
+              <div class="invalid-feedback">
+                Licencia inválida. Usa mayúsculas, números y guiones (7 a 15 caracteres).
+              </div>
+            </div>
+
+            <!-- Fecha de Expiración -->
+            <div class="col-12">
+              <label for="fecha_expiracion_licencia" class="form-label fw-medium">Fecha de Expiración</label>
+              <input
+                type="date"
+                class="form-control"
+                id="fecha_expiracion_licencia"
+                [(ngModel)]="nuevaChofer.fecha_expiracion_licencia"
+                name="fecha_expiracion_licencia"
+                required
+                #fechaExp="ngModel"
+                [ngClass]="{ 'is-invalid': fechaExp.invalid && fechaExp.touched }">
+              <div class="invalid-feedback">
+                Ingrese una fecha de expiración válida.
+              </div>
+            </div>
+
+            <!-- Estado -->
+            <div class="col-12">
+              <label for="estado" class="form-label fw-medium">Estado</label>
+              <select
+                class="form-select"
+                id="estado"
+                [(ngModel)]="nuevaChofer.estado"
+                name="estado"
+                required
+                #estado="ngModel"
+                [ngClass]="{ 'is-invalid': estado.invalid && estado.touched }">
+                <option value="">Seleccione un estado</option>
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+                <option value="suspendido">Suspendido</option>
+              </select>
+              <div class="invalid-feedback">
+                Selecciona un estado válido.
+              </div>
+            </div>
+
+            <!-- Fecha de Ingreso -->
+            <div class="col-12">
+              <label for="fecha_ingreso" class="form-label fw-medium">Fecha de Ingreso</label>
+              <input
+                type="date"
+                class="form-control"
+                id="fecha_ingreso"
+                [(ngModel)]="nuevaChofer.fecha_ingreso"
+                name="fecha_ingreso"
+                required
+                #fechaIng="ngModel"
+                [ngClass]="{ 'is-invalid': fechaIng.invalid && fechaIng.touched }">
+              <div class="invalid-feedback">
+                Ingrese una fecha válida.
+              </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="col-12">
+              <label for="observaciones" class="form-label fw-medium">Observaciones</label>
+              <textarea
+                class="form-control"
+                id="observaciones"
+                [(ngModel)]="nuevaChofer.observaciones"
+                name="observaciones"
+                rows="3"
+                placeholder="Opcional"></textarea>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+              <i class="feather icon-slash"></i>Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary px-4" [disabled]="choferForm.invalid">
+              <i class="feather icon-save"></i>Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="modalEditarChofer" tabindex="-1" aria-labelledby="modalEditarChoferLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <!-- Encabezado -->
+      <div class="modal-header bg-warning text-white">
+        <h5 class="modal-title" id="modalEditarChoferLabel">
+          <i class="bi bi-pencil-square me-2"></i>
+          Editar Chofer
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="modal-body p-4">
+        <form #editarForm="ngForm" (ngSubmit)="actualizarChofer()" novalidate>
+          <div class="row g-3">
+
+            <!-- Usuario -->
+            <div class="col-12">
+              <label for="usuario_id_editar" class="form-label fw-medium">Usuario</label>
+              <select
+                class="form-select"
+                id="usuario_id_editar"
+                [(ngModel)]="nuevaChofer.usuario_id"
+                name="usuario_id"
+                required
+                #usuarioId="ngModel"
+                [ngClass]="{ 'is-invalid': usuarioId.invalid && usuarioId.touched }">
+                <option value="">Seleccione un usuario</option>
+                <option *ngFor="let user of users" [value]="user.usuario_id">{{ user.nombre_completo }}</option>
+              </select>
+              <div class="invalid-feedback">
+                Selecciona un usuario.
+              </div>
+            </div>
+
+            <!-- Licencia de Conducir -->
+            <div class="col-12">
+              <label for="licencia_conducir_editar" class="form-label fw-medium">Licencia de Conducir</label>
+              <input
+                type="text"
+                class="form-control"
+                id="licencia_conducir_editar"
+                [(ngModel)]="nuevaChofer.licencia_conducir"
+                name="licencia_conducir"
+                required
+                pattern="^[A-Z0-9-]{7,15}$"
+                placeholder="Ej: ABC-123456"
+                #licenciaConducir="ngModel"
+                [ngClass]="{ 'is-invalid': licenciaConducir.invalid && licenciaConducir.touched }">
+              <div class="invalid-feedback">
+                Licencia inválida. Usa mayúsculas, números y guiones (7 a 15 caracteres).
+              </div>
+            </div>
+
+            <!-- Fecha de Expiración -->
+            <div class="col-12">
+              <label for="fecha_expiracion_editar" class="form-label fw-medium">Fecha de Expiración</label>
+              <input
+                type="date"
+                class="form-control"
+                id="fecha_expiracion_editar"
+                [(ngModel)]="nuevaChofer.fecha_expiracion_licencia"
+                name="fecha_expiracion_licencia"
+                required
+                #fechaExp="ngModel"
+                [ngClass]="{ 'is-invalid': fechaExp.invalid && fechaExp.touched }">
+              <div class="invalid-feedback">
+                Ingrese una fecha válida.
+              </div>
+            </div>
+
+            <!-- Estado -->
+            <div class="col-12">
+              <label for="estado_editar" class="form-label fw-medium">Estado</label>
+              <select
+                class="form-select"
+                id="estado_editar"
+                [(ngModel)]="nuevaChofer.estado"
+                name="estado"
+                required
+                #estado="ngModel"
+                [ngClass]="{ 'is-invalid': estado.invalid && estado.touched }">
+                <option value="">Seleccione un estado</option>
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+                <option value="suspendido">Suspendido</option>
+              </select>
+              <div class="invalid-feedback">
+                Selecciona un estado válido.
+              </div>
+            </div>
+
+            <!-- Fecha de Ingreso -->
+            <div class="col-12">
+              <label for="fecha_ingreso_editar" class="form-label fw-medium">Fecha de Ingreso</label>
+              <input
+                type="date"
+                class="form-control"
+                id="fecha_ingreso_editar"
+                [(ngModel)]="nuevaChofer.fecha_ingreso"
+                name="fecha_ingreso"
+                required
+                #fechaIng="ngModel"
+                [ngClass]="{ 'is-invalid': fechaIng.invalid && fechaIng.touched }">
+              <div class="invalid-feedback">
+                Ingrese una fecha válida.
+              </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="col-12">
+              <label for="observaciones_editar" class="form-label fw-medium">Observaciones</label>
+              <textarea
+                class="form-control"
+                id="observaciones_editar"
+                [(ngModel)]="nuevaChofer.observaciones"
+                name="observaciones"
+                rows="3"
+                placeholder="Opcional"></textarea>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+              <i class="feather icon-slash"></i>Cancelar
+            </button>
+            <button type="submit" class="btn btn-warning px-4" [disabled]="editarForm.invalid">
+              <i class="feather icon-save"></i>Actualizar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <!-- Modal para ver -->
+      <div class="modal fade" id="modalVerChofer" tabindex="-1" aria-labelledby="modalChoferLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content border-0 shadow">
+            <!-- Encabezado del modal -->
+            <div class="modal-header bg-info text-white">
+              <h5 class="modal-title" id="modalChoferLabel">
+                <i class="bi bi-file-earmark-plus me-2"></i>
+                {{ editando ? 'Editar' : 'Nuevo' }} Chofer
+              </h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+      
+            <!-- Cuerpo del modal -->
+            <div class="modal-body p-4">
+              <form #choferForm="ngForm" (ngSubmit)="actualizarChofer()" >
+                <div class="row g-3">
+                  <!-- Campo: Usuario ID -->
+                  <div class="col-12">
+                    <label for="usuario_id" class="form-label fw-medium">Usuario</label>
+                    <select class="form-select" id="usuario_id" [(ngModel)]="nuevaChofer.usuario_id" name="usuario_id" required>
+                      <option *ngFor="let user of users" [value]="user.usuario_id">{{ user.nombre_completo }}</option>
+                    </select>
+                  </div>
+      
+                  <!-- Campo: Licencia de Conducir -->
+                  <div class="col-12">
+                    <label for="licencia_conducir" class="form-label fw-medium">Licencia de Conducir</label>
+                    <input type="text" class="form-control" id="licencia_conducir" [(ngModel)]="nuevaChofer.licencia_conducir"
+                      name="licencia_conducir" required placeholder="Ingrese la licencia de conducir" />
+                  </div>
+      
+                  <!-- Campo: Fecha de Expiración de Licencia -->
+                  <div class="col-12">
+                    <label for="fecha_expiracion_licencia" class="form-label fw-medium">Fecha de Expiración</label>
+                    <input type="date" class="form-control" id="fecha_expiracion_licencia"
+                      [(ngModel)]="nuevaChofer.fecha_expiracion_licencia" name="fecha_expiracion_licencia" required />
+                  </div>
+      
+                  <!-- Campo: Estado -->
+                  <div class="col-12">
+                    <label for="estado" class="form-label fw-medium">Estado</label>
+                    <select class="form-select" id="estado" [(ngModel)]="nuevaChofer.estado" name="estado" required>
+                      <option value="activo">Activo</option>
+                      <option value="inactivo">Inactivo</option>
+                      <option value="suspendido">Suspendido</option>
+                    </select>
+                  </div>
+      
+                  <!-- Campo: Fecha de Ingreso -->
+                  <div class="col-12">
+                    <label for="fecha_ingreso" class="form-label fw-medium">Fecha de Ingreso</label>
+                    <input type="date" class="form-control" id="fecha_ingreso" [(ngModel)]="nuevaChofer.fecha_ingreso"
+                      name="fecha_ingreso" required />
+                  </div>
+      
+                  <!-- Campo: Observaciones -->
+                  <div class="col-12">
+                    <label for="observaciones" class="form-label fw-medium">Observaciones</label>
+                    <textarea class="form-control" id="observaciones" [(ngModel)]="nuevaChofer.observaciones"
+                      name="observaciones" placeholder="Ingrese observaciones" rows="3"></textarea>
+                  </div>
+                </div>
+      
+                <!-- Botones de acción -->
+                <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+                  <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                    <i class="feather icon-slash"></i>Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+</section>

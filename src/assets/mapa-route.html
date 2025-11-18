@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Rutas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; }
+        .map-container { width: 100%; height: 500px; border-radius: 8px; }
+        .controls { margin-top: 10px; text-align: center; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); }
+        .modal-content { background: white; padding: 20px; width: 300px; margin: 15% auto; border-radius: 5px; text-align: center; }
+        .modal input { width: 100%; padding: 5px; margin: 10px 0; }
+        .modal button { margin: 5px; padding: 5px 10px; }
+    </style>
+    
+</head>
+<body>
+    <div id="mapa" class="map-container"></div>
+    <div class="controls">
+        <button onclick="drawRoute()">Dibujar Ruta</button>
+        <button onclick="openModal()">Guardar Ruta</button>
+    </div>
+
+    <!-- Modal para ingresar el nombre de la ruta -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3>Guardar Ruta</h3>
+            <input type="text" id="routeName" placeholder="Nombre de la ruta">
+            <button onclick="saveRoute()">Guardar</button>
+            <button onclick="closeModal()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        let map = L.map('mapa').setView([18.501, -88.296], 14);
+        let markers = [];
+        let routingControl;
+        let routeCoordinates = '';
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        map.on('click', (event) => {
+            addMarker(event.latlng);
+        });
+
+        function addMarker(latlng) {
+            let marker = L.marker(latlng, { draggable: true }).addTo(map);
+            markers.push(marker);
+        }
+
+        function drawRoute() {
+            if (markers.length < 2) {
+                alert('Selecciona al menos dos puntos');
+                return;
+            }
+
+            if (routingControl) {
+                map.removeControl(routingControl);
+            }
+
+            let waypoints = markers.map(marker => marker.getLatLng());
+
+            routingControl = L.Routing.control({
+                waypoints: waypoints,
+                routeWhileDragging: true
+            }).addTo(map);
+
+            routeCoordinates = waypoints.map(p => `${p.lat},${p.lng}`).join('|');
+        }
+
+        function openModal() {
+            if (routeCoordinates === '') {
+                alert('Primero dibuja la ruta');
+                return;
+            }
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function saveRoute() {
+            let nombre_ruta = document.getElementById('routeName').value.trim();
+
+            if (!nombre_ruta) {
+                alert('Ingresa un nombre para la ruta');
+                return;
+            }
+
+            let ruta = {
+                nombre_ruta: nombre_ruta,
+                puntos: routeCoordinates
+            };
+
+            window.parent.postMessage(ruta, '*'); 
+            closeModal();
+        }
+    </script>
+</body>
+</html>

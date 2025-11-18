@@ -1,0 +1,407 @@
+<!-- Contenedor principal con diseño responsive -->
+ <style>
+    .btn {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn:hover {
+  opacity: 0.8; /* Efecto de hover para hacer que el botón se vea más suave */
+}
+
+ </style>
+<div class="container py-4">
+    <div class="row">
+      <div class="col-12">
+
+        <!-- Sección principal con tabla de datos -->
+        <main>
+          <div class="card border-0 rounded-3 overflow-hidden">
+            <!-- Encabezado de la tarjeta -->
+            <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Listado de Vehículos</h5>
+              <!-- Contador de registros -->
+              <span class="badge bg-light text-primary">{{ rows?.length || 0 }} registros</span>
+            </div>
+            
+            <!-- Barra de herramientas -->
+            <div class="card-body border-bottom py-3">
+              <div class="row g-3 align-items-center">
+                <!-- Buscador -->
+                <div class="col-12 col-md-6">
+                  <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0">
+                      <i class="feather icon-search"></i>
+                    </span>
+                    <input
+                      type="text"
+                      class="form-control border-start-0"
+                      placeholder="Buscar por placa.."
+                      (keyup)="updateFilter($event)"
+                      aria-label="Buscar vehículos"
+                    />
+                  </div>
+                </div>
+                
+                <!-- Botón para agregar nuevo vehículo -->
+                <div class="col-12 col-md-6 d-flex justify-content-md-end">
+                  <button type="button" class="btn btn-primary rounded-pill shadow-sm px-4 d-flex align-items-center" 
+                  data-bs-toggle="modal" data-bs-target="#modalNuevoVehiculo" (click)="abrirModal()">
+                    <i class="feather icon-plus"></i>
+                    Nuevo Vehículo
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Tabla de datos con ngx-datatable -->
+            <div class="w-100 overflow-auto">
+                <ngx-datatable
+                class="bootstrap w-100"
+                [rowHeight]="'auto'"
+                [headerHeight]="50"
+                [footerHeight]="50"
+                [limit]="pageSize"
+                [rows]="rows"
+                [loadingIndicator]="loadingIndicator"
+                [columnMode]="'force'"
+                [reorderable]="true"
+                [scrollbarH]="true"
+                [scrollbarV]="false"
+                [sorts]="[{prop: 'vehiculo_id', dir: 'desc'}]">
+              
+                <!-- Columnas de la tabla -->
+                <ngx-datatable-column prop="vehiculo_id" name="ID" [width]="80" [resizeable]="false" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="num_serie" name="Número de Serie" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="placa" name="Placa" [width]="100" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="num_economico" name="Número Económico" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="marca.marca" name="Marca" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="modelo.modelo" name="Modelo" [width]="150" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+                <ngx-datatable-column prop="anio" name="Año" [width]="80" [resizeable]="true" [sortable]="true"></ngx-datatable-column>
+              
+                <!-- Columna de acciones -->
+                <ngx-datatable-column name="Acciones" [width]="150" [resizeable]="false" [sortable]="false" [draggable]="false" [canAutoResize]="false">
+                  <ng-template let-row="row" ngx-datatable-cell-template>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button class="btn btn-info btn-sm rounded-pill me-2" (click)="abrirModalVer(row)" title="Ver Detalles">
+                          <i class="feather icon-eye me-1"></i>
+                        </button>
+                        <button class="btn btn-warning btn-sm rounded-pill me-2" (click)="abrirModalEdicion(row)" title="Editar">
+                          <i class="feather icon-edit me-1"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm rounded-pill" (click)="eliminarVehiculo(row.vehiculo_id)" title="Eliminar">
+                          <i class="feather icon-trash me-1"></i>
+                        </button>
+                      </div>
+                      
+                      
+                  </ng-template>
+                </ngx-datatable-column>
+              </ngx-datatable>
+              
+              <!-- Componente de paginación -->
+              <pagination-controls (pageChange)="onPageChange($event)" [maxSize]="5" [responsive]="true" [directionLinks]="true" [autoHide]="true"></pagination-controls>
+              
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+<!-- Modales -->
+<section class="modals">
+  <!-- Modal para crear nuevo vehículo -->
+  <div class="modal fade" id="modalNuevoVehiculo" tabindex="-1" aria-labelledby="modalNuevoVehiculoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow">
+        <!-- Encabezado del modal -->
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="modalNuevoVehiculoLabel">
+            <i class="bi bi-file-earmark-plus me-2"></i>
+            {{ editando ? 'Editar' : 'Nuevo' }} Vehículo
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- Cuerpo del modal -->
+        <div class="modal-body p-4">
+          <form #vehiculoForm="ngForm" (ngSubmit)="crearVehiculo()">
+            <div class="row g-3">
+
+              <!-- Número de Serie -->
+              <div class="col-12">
+                <label for="num_serie" class="form-label fw-medium">Número de Serie</label>
+                <input type="text" class="form-control" 
+                      id="num_serie" [(ngModel)]="nuevaVehiculo.num_serie" 
+                      name="num_serie" required placeholder="Ingrese el número de serie"
+                      pattern="^[A-Z0-9\-]{5,20}$"
+                      #num_serie="ngModel"
+                      title="Número de serie debe tener 5-20 caracteres, solo letras mayúsculas, números y guiones." />
+                <!-- Mensajes en tiempo real -->
+                <div *ngIf="num_serie.invalid && num_serie.dirty" class="text-danger small mt-1">
+                  <div *ngIf="num_serie.errors?.['required']">El número de serie es obligatorio.</div>
+                  <div *ngIf="num_serie.errors?.['pattern']">Solo letras mayúsculas, números y guiones, 5-20 caracteres.</div>
+                </div>
+              </div>
+
+              <!-- Placa -->
+              <div class="col-12">
+                <label for="placa" class="form-label fw-medium">Placa</label>
+                <input type="text" class="form-control" 
+                      id="placa" [(ngModel)]="nuevaVehiculo.placa" 
+                      name="placa" required placeholder="Ingrese la placa"
+                      pattern="^[A-Z0-9]{1,7}$"
+                      #placa="ngModel"
+                      title="Placa debe tener 1-7 caracteres, solo letras mayúsculas y números." />
+                <div *ngIf="placa.invalid && placa.dirty" class="text-danger small mt-1">
+                  <div *ngIf="placa.errors?.['required']">La placa es obligatoria.</div>
+                  <div *ngIf="placa.errors?.['pattern']">Solo letras mayúsculas y números, 1-7 caracteres.</div>
+                </div>
+              </div>
+
+              <!-- Número Económico -->
+              <div class="col-12">
+                <label for="num_economico" class="form-label fw-medium">Número Económico</label>
+                <input type="text" class="form-control" 
+                      id="num_economico" [(ngModel)]="nuevaVehiculo.num_economico" 
+                      name="num_economico" required placeholder="Ingrese el número económico"
+                      pattern="^\d{1,10}$"
+                      #num_economico="ngModel"
+                      title="Número económico debe ser solo números, hasta 10 dígitos." />
+                <div *ngIf="num_economico.invalid && num_economico.dirty" class="text-danger small mt-1">
+                  <div *ngIf="num_economico.errors?.['required']">El número económico es obligatorio.</div>
+                  <div *ngIf="num_economico.errors?.['pattern']">Solo números, máximo 10 dígitos.</div>
+                </div>
+              </div>
+
+              <!-- Marca -->
+              <div class="col-12">
+                <label for="marca_id" class="form-label fw-medium">Marca</label>
+                <select class="form-select" id="marca_id" [(ngModel)]="nuevaVehiculo.marca_id" name="marca_id" required (change)="loadModelosByMarca(nuevaVehiculo.marca_id)" #marca_id="ngModel">
+                  <option [value]="''" disabled selected>Seleccione una marca</option>
+                  <option *ngFor="let marca of marcas" [value]="marca.marca_id">{{ marca.marca }}</option>
+                </select>
+                <div *ngIf="marca_id.invalid && marca_id.dirty" class="text-danger small mt-1">
+                  <div *ngIf="marca_id.errors?.['required']">La marca es obligatoria.</div>
+                </div>
+              </div>
+
+              <!-- Modelo -->
+              <div class="col-12">
+                <label for="modelo_id" class="form-label fw-medium">Modelo</label>
+                <select class="form-select" id="modelo_id" [(ngModel)]="nuevaVehiculo.modelo_id" name="modelo_id" required #modelo_id="ngModel">
+                  <option [value]="''" disabled selected>Seleccione un modelo</option>
+                  <option *ngFor="let modelo of modelos" [value]="modelo.modelo_id">{{ modelo.modelo }}</option>
+                </select>
+                <div *ngIf="modelo_id.invalid && modelo_id.dirty" class="text-danger small mt-1">
+                  <div *ngIf="modelo_id.errors?.['required']">El modelo es obligatorio.</div>
+                </div>
+              </div>
+
+              <!-- Año -->
+              <div class="col-12">
+                <label for="anio" class="form-label fw-medium">Año</label>
+                <input type="number" class="form-control" 
+                      id="anio" [(ngModel)]="nuevaVehiculo.anio" 
+                      name="anio" required placeholder="Ingrese el año"
+                      min="1900" max="2099" step="1"
+                      #anio="ngModel"
+                      title="Ingrese un año válido entre 1900 y 2099." />
+                <div *ngIf="anio.invalid && anio.dirty" class="text-danger small mt-1">
+                  <div *ngIf="anio.errors?.['required']">El año es obligatorio.</div>
+                  <div *ngIf="anio.errors?.['min'] || anio.errors?.['max']">Ingrese un año entre 1900 y 2099.</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+              <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                <i class="feather icon-slash"></i>Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary px-4" [disabled]="vehiculoForm.invalid">
+                <i class="feather icon-save"></i>Guardar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para editar vehículo -->
+  <div class="modal fade" id="modalEditarVehiculo" tabindex="-1" aria-labelledby="modalEditarVehiculoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow">
+        <!-- Encabezado -->
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title" id="modalEditarVehiculoLabel">
+            <i class="bi bi-pencil-square me-2"></i>
+            Editar Vehículo
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="modal-body p-4">
+          <form #vehiculoFormEdit="ngForm" (ngSubmit)="actualizarVehiculo()">
+            <div class="row g-3">
+
+              <!-- Número de Serie -->
+              <div class="col-12">
+                <label for="num_serie-edit" class="form-label fw-medium">Número de Serie</label>
+                <input type="text" class="form-control" 
+                      id="num_serie-edit" [(ngModel)]="nuevaVehiculo.num_serie" 
+                      name="num_serie" required
+                      pattern="^[A-Z0-9\-]{5,20}$"
+                      #num_serie_edit="ngModel"
+                      title="Número de serie debe tener 5-20 caracteres, solo letras mayúsculas, números y guiones." />
+                <div *ngIf="num_serie_edit.invalid && num_serie_edit.dirty" class="text-danger small mt-1">
+                  <div *ngIf="num_serie_edit.errors?.['required']">El número de serie es obligatorio.</div>
+                  <div *ngIf="num_serie_edit.errors?.['pattern']">Solo letras mayúsculas, números y guiones, 5-20 caracteres.</div>
+                </div>
+              </div>
+
+              <!-- Placa -->
+              <div class="col-12">
+                <label for="placa-edit" class="form-label fw-medium">Placa</label>
+                <input type="text" class="form-control" 
+                      id="placa-edit" [(ngModel)]="nuevaVehiculo.placa" 
+                      name="placa" required
+                      pattern="^[A-Z0-9]{1,7}$"
+                      #placa_edit="ngModel"
+                      title="Placa debe tener 1-7 caracteres, solo letras mayúsculas y números." />
+                <div *ngIf="placa_edit.invalid && placa_edit.dirty" class="text-danger small mt-1">
+                  <div *ngIf="placa_edit.errors?.['required']">La placa es obligatoria.</div>
+                  <div *ngIf="placa_edit.errors?.['pattern']">Solo letras mayúsculas y números, 1-7 caracteres.</div>
+                </div>
+              </div>
+
+              <!-- Número Económico -->
+              <div class="col-12">
+                <label for="num_economico-edit" class="form-label fw-medium">Número Económico</label>
+                <input type="text" class="form-control" 
+                      id="num_economico-edit" [(ngModel)]="nuevaVehiculo.num_economico" 
+                      name="num_economico" required
+                      pattern="^\d{1,10}$"
+                      #num_economico_edit="ngModel"
+                      title="Número económico debe ser solo números, hasta 10 dígitos." />
+                <div *ngIf="num_economico_edit.invalid && num_economico_edit.dirty" class="text-danger small mt-1">
+                  <div *ngIf="num_economico_edit.errors?.['required']">El número económico es obligatorio.</div>
+                  <div *ngIf="num_economico_edit.errors?.['pattern']">Solo números, máximo 10 dígitos.</div>
+                </div>
+              </div>
+
+              <!-- Marca -->
+              <div class="col-12">
+                <label for="marca_id-edit" class="form-label fw-medium">Marca</label>
+                <select class="form-select" id="marca_id-edit" [(ngModel)]="nuevaVehiculo.marca_id" name="marca_id" required (change)="loadModelosByMarca(nuevaVehiculo.marca_id)" #marca_id_edit="ngModel">
+                  <option [value]="''" disabled selected>Seleccione una marca</option>
+                  <option *ngFor="let marca of marcas" [value]="marca.marca_id">{{ marca.marca }}</option>
+                </select>
+                <div *ngIf="marca_id_edit.invalid && marca_id_edit.dirty" class="text-danger small mt-1">
+                  <div *ngIf="marca_id_edit.errors?.['required']">La marca es obligatoria.</div>
+                </div>
+              </div>
+
+              <!-- Modelo -->
+              <div class="col-12">
+                <label for="modelo_id-edit" class="form-label fw-medium">Modelo</label>
+                <select class="form-select" id="modelo_id-edit" [(ngModel)]="nuevaVehiculo.modelo_id" name="modelo_id" required #modelo_id_edit="ngModel">
+                  <option [value]="''" disabled selected>Seleccione un modelo</option>
+                  <option *ngFor="let modelo of modelos" [value]="modelo.modelo_id">{{ modelo.modelo }}</option>
+                </select>
+                <div *ngIf="modelo_id_edit.invalid && modelo_id_edit.dirty" class="text-danger small mt-1">
+                  <div *ngIf="modelo_id_edit.errors?.['required']">El modelo es obligatorio.</div>
+                </div>
+              </div>
+
+              <!-- Año -->
+              <div class="col-12">
+                <label for="anio-edit" class="form-label fw-medium">Año</label>
+                <input type="number" class="form-control" 
+                      id="anio-edit" [(ngModel)]="nuevaVehiculo.anio" 
+                      name="anio" required
+                      min="1900" max="2099" step="1"
+                      #anio_edit="ngModel"
+                      title="Ingrese un año válido entre 1900 y 2099." />
+                <div *ngIf="anio_edit.invalid && anio_edit.dirty" class="text-danger small mt-1">
+                  <div *ngIf="anio_edit.errors?.['required']">El año es obligatorio.</div>
+                  <div *ngIf="anio_edit.errors?.['min'] || anio_edit.errors?.['max']">Ingrese un año entre 1900 y 2099.</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+              <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                <i class="feather icon-slash"></i>Cancelar
+              </button>
+              <button type="submit" class="btn btn-warning px-4" [disabled]="vehiculoFormEdit.invalid">
+                <i class="feather icon-save"></i>Actualizar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para ver vehículo -->
+  <div class="modal fade" id="modalEditarVisualizacion" tabindex="-1" aria-labelledby="modalEditarVehiculoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow">
+        <!-- Encabezado -->
+        <div class="modal-header bg-primary text-dark">
+          <h5 class="modal-title" id="modalEditarVehiculoLabel">
+            <i class="bi bi-pencil-square me-2"></i>
+            Ver Vehículo
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="modal-body p-4">
+          <form #vehiculoFormView="ngForm">
+            <div class="row g-3">
+              <div class="col-12">
+                <label for="num_serie-view" class="form-label fw-medium">Número de Serie</label>
+                <input type="text" class="form-control" id="num_serie-view" [(ngModel)]="nuevaVehiculo.num_serie" name="num_serie" required readonly />
+              </div>
+              <div class="col-12">
+                <label for="placa-view" class="form-label fw-medium">Placa</label>
+                <input type="text" class="form-control" id="placa-view" [(ngModel)]="nuevaVehiculo.placa" name="placa" required readonly />
+              </div>
+              <div class="col-12">
+                <label for="num_economico-view" class="form-label fw-medium">Número Económico</label>
+                <input type="text" class="form-control" id="num_economico-view" [(ngModel)]="nuevaVehiculo.num_economico" name="num_economico" required readonly />
+              </div>
+              <div class="col-12">
+                <label for="marca_id-view" class="form-label fw-medium">Marca</label>
+                <select class="form-select" id="marca_id-view" [(ngModel)]="nuevaVehiculo.marca_id" name="marca_id" required disabled>
+                  <option *ngFor="let marca of marcas" [value]="marca.marca_id">{{ marca.marca }}</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="modelo_id-view" class="form-label fw-medium">Modelo</label>
+                <select class="form-select" id="modelo_id-view" [(ngModel)]="nuevaVehiculo.modelo_id" name="modelo_id" required disabled>
+                  <option *ngFor="let modelo of modelos" [value]="modelo.modelo_id">{{ modelo.modelo }}</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="anio-view" class="form-label fw-medium">Año</label>
+                <input type="number" class="form-control" id="anio-view" [(ngModel)]="nuevaVehiculo.anio" name="anio" required readonly />
+              </div>
+            </div>
+            <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+              <button type="button" class="btn btn-outline-primary px-4" data-bs-dismiss="modal">
+                Cerrar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

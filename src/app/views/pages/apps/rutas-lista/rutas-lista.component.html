@@ -1,0 +1,24 @@
+<div class="container">
+    <h2>Lista de Rutas</h2>
+    <button (click)="irCrearRuta()" class="btn btn-primary">Nueva Ruta</button>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ruta of rutas">
+          <td>{{ ruta.ruta_id }}</td>
+          <td>{{ ruta.nombre_ruta }}</td>
+          <td>
+            <button class="btn btn-warning">Editar</button>
+            <button class="btn btn-danger" (click)="eliminarRuta(ruta.id)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
