@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/demo1",
+            "outputPath": "dist",
             "allowedCommonJsDependencies": [
               "feather-icons",
               "sweetalert2",
@@ -45,8 +45,9 @@
             "scripts": [
               "node_modules/apexcharts/dist/apexcharts.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
-
-            ]
+            ],
+            "baseHref": "/",
+            "deployUrl": "/"
           },
           "configurations": {
             "production": {
