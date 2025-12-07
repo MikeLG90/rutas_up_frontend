@@ -52,5 +52,9 @@ export default [
     {
         path: 'route-planner',
         loadComponent: () => import('./route-planner/route-planner.component').then(c => c.RoutePlannerComponent)
+    },
+        {
+        path: 'documentos',
+        loadComponent: () => import('./documentos/documentos.component').then(c => c.DocumentosComponent)
     }
 ] as Routes;

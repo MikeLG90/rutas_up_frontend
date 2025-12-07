@@ -1,0 +1,280 @@
+/* Variables de color personalizadas */
+:root {
+  --primary-color: #0d6efd;
+  --info-color: #0dcaf0;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --success-color: #198754;
+  --purple-color: #6f42c1;
+  --light-bg: #f8f9fa;
+}
+
+/* Estilos generales del contenedor */
+.container {
+  max-width: 1400px;
+}
+
+/* Card principal */
+.card {
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Header de la card */
+.card-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #0a58ca 100%);
+  border: none;
+}
+
+.card-header h5 {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.card-header .badge {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Barra de herramientas */
+.card-body.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+/* Input de búsqueda */
+.input-group {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.input-group .form-control:focus {
+  box-shadow: none;
+  border-color: #dee2e6;
+}
+
+.input-group-text {
+  border: 1px solid #dee2e6;
+}
+
+/* Selects de filtro */
+.form-select-sm {
+  padding: 0.375rem 2rem 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 0.375rem;
+  border-color: #dee2e6;
+  transition: all 0.2s ease;
+}
+
+.form-select-sm:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+/* Tabla */
+.table {
+  font-size: 0.9rem;
+}
+
+.table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table thead th {
+  border-bottom: 2px solid #dee2e6;
+  padding: 1rem 0.75rem;
+  white-space: nowrap;
+  color: #495057;
+  background-color: #f8f9fa;
+}
+
+.table tbody td {
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+}
+
+.documento-row {
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.documento-row:hover {
+  background-color: rgba(13, 110, 253, 0.05) !important;
+  transform: translateX(2px);
+}
+
+/* Badges de tipo */
+.bg-purple {
+  background-color: rgba(111, 66, 193, 0.1) !important;
+}
+
+.text-purple {
+  color: var(--purple-color) !important;
+}
+
+.border-purple {
+  border-color: var(--purple-color) !important;
+}
+
+.badge.border {
+  border-width: 1.5px !important;
+}
+
+/* Estados de documentos */
+.badge.vigente {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+  color: var(--success-color) !important;
+  border: 1.5px solid var(--success-color);
+}
+
+.badge.por-vencer {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+  color: #cc9a06 !important;
+  border: 1.5px solid var(--warning-color);
+}
+
+.badge.vencido {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+  color: var(--danger-color) !important;
+  border: 1.5px solid var(--danger-color);
+}
+
+/* Dot de estado */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse 2s infinite;
+}
+
+.vigente .status-dot {
+  background-color: var(--success-color);
+}
+
+.por-vencer .status-dot {
+  background-color: var(--warning-color);
+}
+
+.vencido .status-dot {
+  background-color: var(--danger-color);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Botones */
+.btn {
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+}
+
+/* Footer */
+.card-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .table {
+    font-size: 0.8rem;
+  }
+  
+  .table thead th,
+  .table tbody td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .card-header h5 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Animaciones suaves */
+.table tbody tr {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scroll personalizado */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
