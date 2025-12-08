@@ -1,0 +1,27 @@
+<div class="modal-header bg-primary text-white">
+  <h5 class="modal-title">
+    <i class="feather icon-eye me-2"></i>
+    Visualización del Documento
+  </h5>
+  <button type="button" class="btn-close btn-close-white" aria-label="Cerrar" (click)="activeModal.dismiss('Cancelado')"></button>
+</div>
+
+<div class="modal-body p-0" style="height: 80vh; overflow: hidden;">
+  <iframe 
+    *ngIf="safeDocumentUrl"
+    [src]="safeDocumentUrl" 
+    style="width: 100%; height: 100%; border: none;">
+    
+    El navegador no soporta la visualización incrustada.
+  </iframe>
+</div>
+
+<div class="modal-footer justify-content-between">
+  <button type="button" class="btn btn-secondary" (click)="activeModal.close('Cerrar')">
+    <i class="feather icon-x me-1"></i> Cerrar
+  </button>
+  
+  <a [href]="safeDocumentUrl" target="_blank" class="btn btn-info text-white" *ngIf="safeDocumentUrl">
+    <i class="feather icon-external-link me-1"></i> Abrir en Pestaña Nueva
+  </a>
+</div>

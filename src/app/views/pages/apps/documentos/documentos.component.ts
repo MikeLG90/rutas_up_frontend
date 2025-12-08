@@ -8,10 +8,9 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Pipe, PipeTransform } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap'; 
+import { DocumentViewerModalComponent } from '../../../../components/document-viewer-modal/document-viewer-modal.component';
 
-// ===========================
-// 🔹 PIPE: FILTRO POR TÉRMINO
-// ===========================
+
 @Pipe({
   name: 'filterByTerm',
   pure: false,
@@ -263,10 +262,14 @@ getNombrePropietario(doc: Documento): string {
   }
 
 visualizarDocumento(doc: Documento): void {
-        const url = this.docService.getDownloadUrl(doc.id);
-        
-        // Abrir la URL en una nueva pestaña. 
-        // El navegador intentará mostrar el archivo (PDF, JPG) si puede.
-        window.open(url, '_blank');
+        const url = this.docService.getViewUrl(doc.id);
+        const modalRef = this.modalService.open(DocumentViewerModalComponent, { 
+        size: 'xl', 
+        centered: true,
+        scrollable: true 
+    });
+
+    modalRef.componentInstance.documentUrl = url;
+
     }
 }

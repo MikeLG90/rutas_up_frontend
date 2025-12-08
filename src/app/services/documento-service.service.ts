@@ -7,7 +7,7 @@ import { Documento } from '../models/documento';
   providedIn: 'root'
 })
 export class DocumentoServiceService {
-  private apiUrl = 'http://localhost:8000/api/documentos';
+  private apiUrl = 'https://rutas-up-backend.onrender.com/api/documentos';
 
   constructor(private http: HttpClient) { }
 
@@ -29,4 +29,7 @@ obtenerDocumentos(): Observable<Documento[]> {
         const URL_BASE = this.apiUrl;
         return `${URL_BASE}${this.apiUrl}/${id}/download`; 
     }
+
+    getViewUrl(id: number): string {
+      return `${this.apiUrl}/${id}/view`;    }
 }
