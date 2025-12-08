@@ -59,11 +59,6 @@ export const MENU: MenuItem[] = [
       text: 'Event',
     }
   }, */
-  {
-    label: 'Logs',
-    icon: 'activity',
-    link: '/apps/logs'
-  },
   /*
   {
     label: 'Mapa',
