@@ -119,6 +119,23 @@ onPageChange(page: number) {
 crearVehiculo() {
   this.vehiculoService.createVehicle(this.nuevaVehiculo).subscribe({
     next: () => {
+      // 1. Obtener el elemento del modal por su ID.
+      const modalElement = document.getElementById('modalNuevoVehiculo') as any;
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+
+      // 2. Ocultar el modal de Bootstrap INMEDIATAMENTE.
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+
+      // 3. **SOLUCIÓN PARA EL BACKDROP PERSISTENTE:**
+      //    Eliminar forzadamente la clase 'modal-open' del body 
+      //    y remover cualquier backdrop remanente.
+      document.body.classList.remove('modal-open'); 
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      backdrops.forEach(backdrop => backdrop.remove());
+      
+      // 4. Mostrar el SweetAlert2 DESPUÉS de cerrar el modal.
       Swal.fire({
         toast: true,
         position: 'top-end',
@@ -129,17 +146,11 @@ crearVehiculo() {
         icon: 'success',
       });
 
-      const modalElement = document.getElementById('modalNuevoVehiculo') as any;
-      const modalInstance = bootstrap.Modal.getInstance(modalElement);
-
-      if (modalInstance) {
-        modalInstance.hide();
-      }
-
+      // 5. Recargar la lista de vehículos.
       this.loadVehiculos();
     },
     error: (error) => {
-      // Verificamos si el error viene por duplicado (status 500 y mensaje específico)
+      // Manejo de errores (duplicado u otros) - Esta parte está correcta.
       if (
         error.status === 500 &&
         error.error?.message?.includes('duplicate key value violates unique constraint')
@@ -158,6 +169,7 @@ crearVehiculo() {
       }
     },
     complete: () => {
+      // Callback opcional de completado
       console.log('La creación del vehículo se completó.');
     }
   });
