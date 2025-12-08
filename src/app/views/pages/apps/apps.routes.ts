@@ -58,7 +58,7 @@ export default [
         loadComponent: () => import('./documentos/documentos.component').then(c => c.DocumentosComponent)
     },
     {
-        path: 'camara',
+        path: 'camaras',
         loadComponent: () => import('./camaras/camaras.component').then(c => c.CamarasComponent)
     }
 ] as Routes;
