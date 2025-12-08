@@ -18,10 +18,12 @@ export class VehiculoService {
     return this.http.post(`${this.apiUrl}/store`, data);
   }
 
+  /*updateVehicle(id: any, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/update/${id}`, data);
+  }*/
   updateVehicle(id: any, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/update/${id}`, data);
   }
-
   deleteVehicle(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/delete/${id}`);
   }

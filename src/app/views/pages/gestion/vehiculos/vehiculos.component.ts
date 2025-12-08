@@ -163,6 +163,29 @@ crearVehiculo() {
   });
 }
 
+toggleEstatus(row: any): void {
+  const nuevoEstatus = !row.estatus; // Cambiar el estado
+  this.vehiculoService.updateVehicle(row.vehiculo_id, { ...row, estatus: nuevoEstatus }).subscribe({
+    next: () => {
+      row.estatus = nuevoEstatus; // Actualizar el estado en la tabla
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000,
+        title: `Estatus cambiado a ${nuevoEstatus ? 'Activo' : 'Inactivo'}`,
+        icon: 'success',
+      });
+    },
+    error: () => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cambiar el estatus. Intenta de nuevo.',
+      });
+    },
+  });
+}
 
   abrirModalEdicion(vehiculo: any) {
     this.editando = true;

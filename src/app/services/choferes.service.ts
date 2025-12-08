@@ -23,12 +23,14 @@ export class ChoferesService {
     return this.http.post(`${this.apiUrl}/store`, chofer);
   }
 
+  /*updateChofer(id: any, chofer: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/update/${id}`, chofer);
+  }*/
   updateChofer(id: any, chofer: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/update/${id}`, chofer);
   }
-
   deleteChofer(id: any): Observable<any> {
     return this.http.delete(`${this.apiUrl}/delete/${id}`);
   }
-
+  
 }
