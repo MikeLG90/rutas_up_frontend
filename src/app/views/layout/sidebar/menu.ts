@@ -39,10 +39,15 @@ export const MENU: MenuItem[] = [
     icon: 'map',
     link: '/apps/route-planner',
   },
-    {
+  {
     label: 'Documentos',
     icon: 'paperclip',
     link: '/apps/documentos',
+  },
+  {
+    label: 'Cámaras',
+    icon: 'camera',
+    link: '/apps/camaras',
   },
   /*
   {
