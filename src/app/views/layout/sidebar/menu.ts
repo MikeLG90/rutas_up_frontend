@@ -49,6 +49,11 @@ export const MENU: MenuItem[] = [
     icon: 'camera',
     link: '/apps/camaras',
   },
+    {
+    label: 'Logs',
+    icon: 'activity',
+    link: '/apps/logs',
+  },
   /*
   {
     label: 'Calendar',
